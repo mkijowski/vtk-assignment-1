@@ -11,14 +11,14 @@ def main():
     latitude.SetName("latitude")
     longitude = vtk.vtkDoubleArray()
     longitude.SetName("longitude")
-    
+
     latlong = pd.read_csv('data/unique-sorted-lat-long.dat', delimiter = ' ')
 
     for i in range(0, len(latlong)):
             g.AddVertex()
             latitude.InsertNextValue(latlong.Latitude[i])
             longitude.InsertNextValue(latlong.Longitude[i])
-    
+
     g.GetVertexData().AddArray(latitude)
     g.GetVertexData().AddArray(longitude)
 
@@ -30,12 +30,35 @@ def main():
     assign.SetGlobeRadius(1.0)
     assign.Update()
 
-    mapper = vtk.vtkGraphMapper()
-    mapper.SetInputConnection(assign.GetOutputPort())
-    actor = vtk.vtkActor()
-    actor.SetMapper(mapper)
+    globeobjPath = "/home/mkijowski/git/vtk-assignment-1/data/globe.obj"
+
+    globe = vtk.vtkOBJReader()
+    globe.SetFileName(globeobjPath)
+    globe.Update()
+
+    globeMapper = vtk.vtkPolyDataMapper()
+    globeMapper.SetInputConnection(globe.GetOutputPort())
+    globeActor = vtk.vtkActor()
+    globeActor.SetMapper(globeMapper)
+
+    glyph = vtk.vtkGlyph3D()
+    glyph.SetInputConnection(globe.GetOutputPort())
+    glyph.SetSourceConnection(assign.GetOutputPort())
+    glyph.SetVectorModeToUseNormal()
+    glyph.SetScaleModeToScaleByVector()
+    glyph.SetScaleFactor(0.25)
+
+
+
+    pingMapper = vtk.vtkGraphMapper()
+    pingMapper.SetInputConnection(glyph.GetOutputPort())
+    pingActor = vtk.vtkActor()
+    pingActor.SetMapper(pingMapper)
+
     ren = vtk.vtkRenderer()
-    ren.AddActor(actor)
+    ren.AddActor(pingActor)
+    ren.AddActor(globeActor)
+
     iren = vtk.vtkRenderWindowInteractor()
     renWin = vtk.vtkRenderWindow()
     renWin.AddRenderer(ren)
