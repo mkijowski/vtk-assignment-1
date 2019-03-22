@@ -27,4 +27,7 @@ The following changes were made to the dataset:
 The first three changes removed about 3-4k lines (of over 50k), the last change
 brought the total of unique lines to under 500.
 
-
+Example code obtained from:
+* [lorensen.github.io](https://lorensen.github.io/VTKExamples/site/Python/)
+* [python vtk .obj input](https://stackoverflow.com/questions/52910944/how-to-show-an-obj-file-in-python-vtk)
+* [vtk files linked from avida](http://avida.cs.wright.edu/courses/CEG7560/assignment.html)
