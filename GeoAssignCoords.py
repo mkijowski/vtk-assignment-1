@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import vtk
-
+import pandas as pd
 
 def main():
     colors = vtk.vtkNamedColors()
@@ -11,11 +11,14 @@ def main():
     latitude.SetName("latitude")
     longitude = vtk.vtkDoubleArray()
     longitude.SetName("longitude")
-    for i in range(-90, 90, 10):
-        for j in range(-180, 180, 20):
+    
+    latlong = pd.read_csv('data/unique-sorted-lat-long.dat', delimiter = ' ')
+
+    for i in range(0, len(latlong)):
             g.AddVertex()
-            latitude.InsertNextValue(i)
-            longitude.InsertNextValue(j)
+            latitude.InsertNextValue(latlong.Latitude[i])
+            longitude.InsertNextValue(latlong.Longitude[i])
+    
     g.GetVertexData().AddArray(latitude)
     g.GetVertexData().AddArray(longitude)
 
