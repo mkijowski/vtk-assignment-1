@@ -31,3 +31,38 @@ Example code obtained from:
 * [lorensen.github.io](https://lorensen.github.io/VTKExamples/site/Python/)
 * [python vtk .obj input](https://stackoverflow.com/questions/52910944/how-to-show-an-obj-file-in-python-vtk)
 * [vtk files linked from avida](http://avida.cs.wright.edu/courses/CEG7560/assignment.html)
+* Dr. Thomas Wischgoll's office hours (thanks!)
+
+### Usage
+Assuming you have built the vtk container above you can run this program with
+the following:
+```
+singularity exec vtk.simg python GeoAssignCoords.py
+```
+By default this will render the globe.obj provided in the assignment.  If you
+would rather use vtkEarthSource() simply change line 19 to 
+```
+globj = 0
+```
+
+Also by default this will use the pared down (429 lines)
+`data/unique-sorted-lat-long.dat`.  If you would rather run it on a different
+dataset, make sure the first line of the dataset specifies whether that column
+is `Latitude` or `Longitude`, similar to the layout of the default
+`data/unique-sorted-lat-long.dat`.
+
+You can load other data into this rendering by passing a absolute or relative
+path to your data as the first argument to this python program.  Example:
+```
+singularity exec vtk.simg python GeoAssignCoords.py data/orientation.dat
+```
+`Orientation.dat` is a data file with lat/long coordinates starting in dayton
+and moving north.  This was used to orient the glyphs over the rendered
+globe.obj.
+
+After playing with rotations of globe.obj, it appears there are some unique
+quirks that the rendered earth model inherits, starting with being off center.
+This is was easy enough to fix by finding the center of the obj in XYZ
+cordinates and creating a filter to transform the globe, shifting its center to
+*almost* by in line with the lat/long glyphed spheres.
+

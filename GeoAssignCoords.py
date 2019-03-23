@@ -15,10 +15,18 @@ import pandas as pd
 import sys
 
 def main():
+    ## Render globe.obj (=1) or earthsource (=0)
+    globj = 1
+
+    ## Figure out if we're trying to pass in a different data file
+    if len(sys.argv) > 1:
+        LatLongDataFile = sys.argv[1]
+    else:
+        LatLongDataFile = 'data/unique-sorted-lat-long.dat'
 
     colors = vtk.vtkNamedColors()
 
-    ## Latitude and Lognitude setup
+    ## Latitude and Lognitude setup (mostly from source in README.md)
     g = vtk.vtkMutableDirectedGraph()
     latitude = vtk.vtkDoubleArray()
     latitude.SetName("latitude")
@@ -26,9 +34,7 @@ def main():
     longitude.SetName("longitude")
 
     ## Use Pandas to import lat/long from data
-    #latlong = pd.read_csv('data/unique-sorted-lat-long.dat', delimiter = ' ')
-    #latlong = pd.read_csv('data/orientation.dat', delimiter = ' ')
-    latlong = pd.read_csv( sys.argv[2], delimiter = ' ')
+    latlong = pd.read_csv( LatLongDataFile, delimiter = ' ')
     for i in range(0, len(latlong)):
             g.AddVertex()
             latitude.InsertNextValue(latlong.Latitude[i])
@@ -36,12 +42,15 @@ def main():
     g.GetVertexData().AddArray(latitude)
     g.GetVertexData().AddArray(longitude)
 
-
-    if sys.argv[1] == "Toms": 
+    ## Render blobe.obj per above, this allows for quickly switching between
+    ## earthSource() and blobe.obj.
+    ## Thanks for the centering info Tom!
+    if globj == 1:
         ## Import Tom's globe.obj
         globeobjPath = "/home/mkijowski/git/vtk-assignment-1/data/globe.obj"
         globeSource = vtk.vtkOBJReader()
         globeSource.SetFileName(globeobjPath)
+        globeSource.Update()
         center = globeSource.GetOutput().GetCenter()
         TranslateToOrigin = vtk.vtkTransform()
         TranslateToOrigin.Translate( -center[0], -center[1], -center[2])
@@ -49,7 +58,7 @@ def main():
         globe.SetInputConnection(globeSource.GetOutputPort())
         globe.SetTransform(TranslateToOrigin)
         glyphsize = 2
-        radius = 57
+        radius = 62
         distance = 4.53
     else:
         ## Import Earth.source
@@ -94,10 +103,27 @@ def main():
     glyph.SetVectorModeToUseNormal()
     glyph.SetScaleModeToScaleByVector()
     glyph.SetScaleFactor(glyphsize)
+    glyph.Update()
 
-    ## 
+    ## Create filter to rotate both the IP locations
+    ## Kayleigh Duncan provided the rotation numbers through trial and error
+    rotateping = vtk.vtkTransform()
+    if globj == 1:
+        rotateping.RotateX(-95)
+        rotateping.RotateY(-5)
+        rotateping.RotateZ(125)
+    else:
+        rotateping.RotateX(0)
+        rotateping.RotateY(0)
+        rotateping.RotateZ(0)
+
+    pingshift = vtk.vtkTransformPolyDataFilter()
+    pingshift.SetInputConnection(glyph.GetOutputPort())
+    pingshift.SetTransform(rotateping)
+    pingshift.Update()
+
     pingMapper = vtk.vtkPolyDataMapper()
-    pingMapper.SetInputConnection(glyph.GetOutputPort())
+    pingMapper.SetInputConnection(pingshift.GetOutputPort())
     pingActor = vtk.vtkActor()
     pingActor.SetMapper(pingMapper)
     pingActor.GetProperty().SetColor(.5,0,0)
