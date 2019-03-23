@@ -1,5 +1,16 @@
 ### CEG-7560 Assignment 1
 
+This README would be better read online @
+https://github.com/mkijowski/vtk-assignment-1
+
+Feel free to clone this with the following command:
+```
+git clone https://github.com/mkijowski/vtk-assignment-1.git
+```
+Note: cloning from this might get you a later version of this code than was
+submitted to pilot.  Please check the commit history to see if any major changes
+occured after submission (or just use the submitted code).
+
 Attempting to build a python vtk container with
 [vtk.build](../blob/master/vtk.build)
 
